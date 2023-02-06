@@ -42,6 +42,31 @@ class docker::compose (
   Optional[String]               $raw_url      = undef,
   Optional[Boolean]              $curl_ensure  = $docker::params::curl_ensure,
 ) inherits docker::params {
+  if $ensure == 'present' {
+    if $facts['os']['family'] == 'windows' {
+      # will be defined soon
+      # https://docs.docker.com/compose/install/other/
+    }
+    else {
+      if $docker::use_upstream_package_source {
+        case $facts['os']['family'] {
+          'Debian': {
+            ensure_packages('docker-compose-plugin', { ensure => pick($version,$ensure), require => Apt::Source['docker'] })
+          }
+          'RedHat': {
+            ensure_packages('docker-compose-plugin', { ensure => pick($version,$ensure), require => Yumrepo['docker'] })
+          }
+          default: {}
+        }
+      }
+    }
+  }
+
+##
+##
+##
+
+  ##### old way
   if $proxy != undef {
     validate_re($proxy, '^((http[s]?)?:\/\/)?([^:^@]+:[^:^@]+@|)([\da-z\.-]+)\.([\da-z\.]{2,6})(:[\d])?([\/\w \.-]*)*\/?$')
   }

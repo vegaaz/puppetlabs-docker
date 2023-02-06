@@ -150,3 +150,10 @@ Facter.add(:docker) do
     end
   end
 end
+
+Facter.add(:docker_compose_v1) do
+  confine { Facter::Core::Execution.which('docker-compose') }
+  setcode do
+    Facter::Core::Execution.which('docker-compose')
+  end
+end

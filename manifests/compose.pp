@@ -48,16 +48,14 @@ class docker::compose (
       # https://docs.docker.com/compose/install/other/
     }
     else {
-      if $docker::use_upstream_package_source {
-        case $facts['os']['family'] {
-          'Debian': {
-            ensure_packages('docker-compose-plugin', { ensure => pick($version,$ensure), require => Apt::Source['docker'] })
-          }
-          'RedHat': {
-            ensure_packages('docker-compose-plugin', { ensure => pick($version,$ensure), require => Yumrepo['docker'] })
-          }
-          default: {}
+      case $facts['os']['family'] {
+        'Debian': {
+          ensure_packages('docker-compose-plugin', { ensure => pick($version,$ensure), require => defined('$docker::use_upstream_package_source') ? { true => Apt::Source['docker'], false => undef } }) #lint:ignore:140chars
         }
+        'RedHat': {
+          ensure_packages('docker-compose-plugin', { ensure => pick($version,$ensure), require => defined('$docker::use_upstream_package_source') ? { true => Yumrepo['docker'], false => undef } }) #lint:ignore:140chars lint:ignore:unquoted_string_in_selector
+        }
+        default: {}
       }
     }
   }
